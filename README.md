@@ -30,4 +30,5 @@ You can set environment variables directly in the `docker-compose.yml` file, use
 2. **Run the Containers with Docker Compose**
  After the build, start the application using Docker Compose:
 
-    docker-compose up --build
+```bash
+   docker-compose up --build
