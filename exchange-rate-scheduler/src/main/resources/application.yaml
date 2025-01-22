@@ -1,0 +1,6 @@
+fixer:
+  api:
+   key: ddc71a4a7ff038a54eb727bfe07b872b
+  url: https://data.fixer.io/api/latest?access_key=%s
+server:
+  port: 8082

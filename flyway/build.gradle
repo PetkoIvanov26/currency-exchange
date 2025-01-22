@@ -1,0 +1,19 @@
+plugins {
+    id 'org.flywaydb.flyway' version '9.2.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.flywaydb:flyway-core:9.2.0'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql:11.2.0'
+    implementation 'org.postgresql:postgresql:42.5.0'
+}
+flyway {
+    url = 'jdbc:postgresql://localhost:5434/foreign_exchange_db'
+    user = 'postgres'
+    password = 'postgres'
+    locations = ['classpath:db/migration']
+}

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: foreign-exchange-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5434/foreign_exchange_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_FLYWAY_ENABLED=true
+      - SPRING_FLYWAY_LOCATIONS=classpath:db/migration
+      - SPRING_FLYWAY_BASELINE_ON_MIGRATE=true
+    volumes:
+      - ./domain/config/application.yml:/config/application.yml  # Mapping domain app config
+      - ./flyway/config/flyway.yml:/config/flyway.yml            # Mapping Flyway config
+    networks:
+      - foreign-exchange-network
+
+  db:
+    image: postgres:13
+    container_name: foreign-exchange-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: foreign_exchange_db
+    ports:
+      - "5434:5432"
+    networks:
+      - foreign-exchange-network
+
+networks:
+  foreign-exchange-network:
+    driver: bridge

@@ -1,0 +1,6 @@
+rootProject.name = 'currency-exchange'
+include 'domain'
+include 'flyway'
+include 'gateway'
+include 'exchange-rate-scheduler'
+
