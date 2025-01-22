@@ -1,25 +1,14 @@
-FROM openjdk:17-jdk-slim AS build
-
-WORKDIR /app
-
-# Copy the entire project context
-COPY . /app
-
-# Make gradlew executable (relative path - preferred)
-RUN chmod +x gradlew
-
-# Set the working directory to the gateway module (AFTER chmod)
-WORKDIR /app/gateway
-
-# Build the gateway module (relative path)
-RUN ../gradlew build -x test
-
-# Production stage
+# Use an official OpenJDK runtime as a parent image
 FROM openjdk:17-jdk-slim
+
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy only the gateway JAR
-COPY --from=build /app/gateway/build/libs/gateway-*.jar /app/gateway.jar
+# Copy the JAR file into the container
+COPY build/libs/gateway.jar /app/gateway.jar
 
+# Expose the port the app will run on
 EXPOSE 8081
-CMD ["java", "-jar", "/app/gateway.jar"]
+
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "gateway.jar"]

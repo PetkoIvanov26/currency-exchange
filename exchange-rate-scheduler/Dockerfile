@@ -1,25 +1,14 @@
-FROM openjdk:17-jdk-slim AS build
-
-WORKDIR /app
-
-# Copy the entire project context
-COPY . /app
-
-# Make gradlew executable (relative path - preferred)
-RUN chmod +x gradlew
-
-# Set the working directory to the gateway module (AFTER chmod)
-WORKDIR /app/excahnge-rate-scheduler
-
-# Build the gateway module (relative path)
-RUN ../gradlew build -x test
-
-# Production stage
+# Use an official OpenJDK runtime as a parent image
 FROM openjdk:17-jdk-slim
+
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy only the gateway JAR
-COPY --from=build /app/excahnge-rate-scheduler/build/libs/*.jar /app/excahnge-rate-scheduler.jar
+# Copy the correct JAR file into the container (update to match the correct path)
+COPY build/libs/exchange-rate-scheduler.jar /app/scheduler.jar
 
-EXPOSE 8081
-CMD ["java", "-jar", "/app/gateway.jar"]
+# Expose the port the app will run on
+EXPOSE 8082
+
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "/app/scheduler.jar"]

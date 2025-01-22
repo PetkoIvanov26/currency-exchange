@@ -1,16 +1,17 @@
+version: '3.8'
+
 services:
-  app:
-    build:
-      context: .  # The build context is set to the root folder, which includes all subfolders
-      dockerfile: ./gateway/Dockerfile
-    container_name: foreign-exchange-app
+
+  gateway:
+    build: ./gateway
+    container_name: foreign-exchange-gateway
     ports:
       - "8081:8081"
     depends_on:
       - flyway
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5434/foreign_exchange_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/foreign_exchange_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     volumes:
@@ -23,7 +24,7 @@ services:
     image: flyway/flyway:9.2.0
     container_name: flyway-migrate
     environment:
-      - FLYWAY_URL=jdbc:postgresql://db:5434/foreign_exchange_db
+      - FLYWAY_URL=jdbc:postgresql://db:5432/foreign_exchange_db
       - FLYWAY_USER=postgres
       - FLYWAY_PASSWORD=postgres
       - FLYWAY_LOCATIONS=filesystem:/config/db/migration
@@ -49,26 +50,23 @@ services:
       - foreign-exchange-network
 
   scheduler:
-    build:
-      context: .  # The build context is set to the root folder
-      dockerfile: ./exchange-rate-scheduler/Dockerfile
+    build: ./exchange-rate-scheduler
     container_name: foreign-exchange-scheduler
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5434/foreign_exchange_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/foreign_exchange_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_FLYWAY_ENABLED=true
-      - CRON_JOB="0 * * * *"
+      - CRON_JOB=0 * * * * *
     depends_on:
       - db
     networks:
       - foreign-exchange-network
     volumes:
-      - ./exchange-rate-scheduler/src/main/resources/application.yml:/config/application.yml
+      - ./domain/config/database.yml:/config/application.yml
       - ./db/migration:/config/db/migration
-    entrypoint: ["sh", "-c", "java -jar /app/scheduler.jar"]
 
 networks:
   foreign-exchange-network:
