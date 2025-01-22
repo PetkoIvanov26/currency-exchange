@@ -29,6 +29,12 @@ You can set environment variables directly in the `docker-compose.yml` file, use
 
 2. **Run the Containers with Docker Compose**
  After the build, start the application using Docker Compose:
+    ```bash
+     docker-compose up --build
 
-```bash
-   docker-compose up --build
+3. **Open Swagger UI**
+To access the Swagger UI, navigate to the following URL:
+http://localhost:8081/swagger-ui/index.html#/currency-exchange
+
+This will allow you to interact with the API and test the available endpoints for the currency exchange service.
+
