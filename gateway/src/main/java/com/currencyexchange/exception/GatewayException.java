@@ -8,4 +8,13 @@ public class GatewayException extends Exception{
     super(errorCode.getMessage(),cause);
     this.code = errorCode.getCode();
   }
+
+  public GatewayException(GatewayErrorCode errorCode){
+    super(errorCode.getMessage());
+    this.code = errorCode.getCode();
+  }
+
+  public Integer getCode() {
+    return code;
+  }
 }

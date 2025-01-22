@@ -52,6 +52,8 @@ public class CurrencyConversionDomainService {
       .transactionId(generateTransactionId())
       .build();
 
+    log.info("Persisting new currency conversion history to database");
+
     return domainAdapter.
       fromEntityToValue(conversionHistoryRepository.save(entity));
   }

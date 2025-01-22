@@ -76,7 +76,8 @@ public class CurrencyExchangeController {
     }
   )
   @PostMapping("/convert")
-  public ResponseEntity<CurrencyConversionHistoryResponse> convertCurrency(@RequestBody CurrencyConversionRequest request) throws DomainException {
+  public ResponseEntity<CurrencyConversionHistoryResponse> convertCurrency(@RequestBody CurrencyConversionRequest request) throws
+    GatewayException {
     return ResponseEntity.ok(currencyConversionService.currencyConversion(request));
   }
 

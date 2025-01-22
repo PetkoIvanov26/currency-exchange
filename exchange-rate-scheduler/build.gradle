@@ -12,6 +12,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation project(':domain')
 
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
     testImplementation 'org.mockito:mockito-core:4.8.1'
     testImplementation 'org.mockito:mockito-junit-jupiter:4.8.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

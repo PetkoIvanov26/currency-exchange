@@ -7,6 +7,7 @@ import com.currencyexchange.exception.DomainException;
 import com.currencyexchange.repository.ExchangeRateRepository;
 import com.currencyexchange.value.VCurrency;
 import com.currencyexchange.value.VExchangeRate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 import static com.currencyexchange.exception.errorCode.DomainErrorCode.EXCHANGE_RATE_NOT_FOUND;
 
 @Service
+@Slf4j
 public class ExchangeRateDomainService {
   private final DomainAdapter domainAdapter;
   private final ExchangeRateRepository exchangeRateRepository;
@@ -37,6 +39,7 @@ public class ExchangeRateDomainService {
     Optional<ExchangeRate> existingRate = exchangeRateRepository.findBySourceCurrencyIdAndTargetCurrencyId(fromCurrency, toCurrency);
 
     if (existingRate.isPresent()) {
+      log.info(String.format("Updating exchange rate by id %d",existingRate.get().getId()));
 
       ExchangeRate rate = existingRate.get();
       rate.setExchangeRate(exchangeRate);
@@ -58,11 +61,14 @@ public class ExchangeRateDomainService {
                                        .targetCurrency(currencyTo)
                                        .exchangeRate(exchangeRate)
                                        .timestamp(LocalDateTime.now()).build();
+
+    log.info(String.format("Persisting new exchange rate %s -> %s",currencyFrom.getCode(),currencyTo.getCode()));
     return domainAdapter.fromEntityToValue(exchangeRateRepository.save(newRate));
   }
 
   public VExchangeRate getExchangeRate(String sourceCurrencyCode, String targetCurrencyCode) throws DomainException {
-    return calculateExchangeRate(sourceCurrencyCode, targetCurrencyCode);  // Adapt the exchange rate to VExchangeRate format
+    log.info("Calculating exchange rate");
+    return calculateExchangeRate(sourceCurrencyCode, targetCurrencyCode);
   }
 
   private VExchangeRate calculateExchangeRate(String sourceCurrencyCode, String targetCurrencyCode) throws DomainException {
@@ -107,7 +113,6 @@ public class ExchangeRateDomainService {
       BigDecimal amountInEUR = BigDecimal.ONE.divide(sourceToEurRate, 6, RoundingMode.HALF_UP);
       BigDecimal finalRate = amountInEUR.multiply(eurToTargetRate);
 
-      // Map to VExchangeRate
       return buildVExchangeRate(currencyFrom, currencyTo, finalRate);
     }
 

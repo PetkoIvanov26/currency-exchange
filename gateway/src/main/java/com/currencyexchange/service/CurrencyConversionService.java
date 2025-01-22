@@ -6,6 +6,7 @@ import com.currencyexchange.dto.request.CurrencyConversionRequest;
 import com.currencyexchange.dto.response.CurrencyConversionHistoryResponse;
 import com.currencyexchange.dto.response.CurrencyConversionHistorySearch;
 import com.currencyexchange.exception.DomainException;
+import com.currencyexchange.exception.GatewayException;
 import com.currencyexchange.value.VCurrencyConversionHistory;
 import com.currencyexchange.value.VExchangeRate;
 import com.currencyexchange.value.request.VCurrencyConversionHistoryRequest;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.currencyexchange.exception.errorCode.GatewayErrorCode.CURRENCY_NOT_FOUND;
+import static com.currencyexchange.exception.errorCode.GatewayErrorCode.EXCHANGE_RATE_NOT_FOUND;
 
 @Service
 public class CurrencyConversionService {
@@ -31,9 +35,15 @@ public class CurrencyConversionService {
   }
 
   public CurrencyConversionHistoryResponse currencyConversion(CurrencyConversionRequest request) throws
-    DomainException {
-    VExchangeRate exchangeRate = exchangeRateDomainService.getExchangeRate(request.getSourceCurrencyCode().toUpperCase()
-      , request.getTargetCurrencyCode().toUpperCase());
+    GatewayException {
+
+    VExchangeRate exchangeRate = null;
+    try {
+      exchangeRate = exchangeRateDomainService.getExchangeRate(request.getSourceCurrencyCode().toUpperCase()
+        , request.getTargetCurrencyCode().toUpperCase());
+    } catch (DomainException e) {
+      throw new GatewayException(EXCHANGE_RATE_NOT_FOUND,e);
+    }
 
     BigDecimal finalAmount = request.getAmount().multiply(exchangeRate.getExchangeRate());
 
@@ -44,7 +54,13 @@ public class CurrencyConversionService {
     vCurrencyConversionHistoryRequest.setConvertedAmount(finalAmount);
 
     VCurrencyConversionHistory
-      convertedCurrency = currencyConversionDomainService.createCurrencyConversionHistory(vCurrencyConversionHistoryRequest);
+      convertedCurrency = null;
+    try {
+      convertedCurrency =
+        currencyConversionDomainService.createCurrencyConversionHistory(vCurrencyConversionHistoryRequest);
+    } catch (DomainException e) {
+      throw new GatewayException(CURRENCY_NOT_FOUND,e);
+    }
 
     return adapter.fromValueToResponse(convertedCurrency);
   }

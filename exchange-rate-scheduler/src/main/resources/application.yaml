@@ -4,3 +4,5 @@ fixer:
   url: https://data.fixer.io/api/latest?access_key=%s
 server:
   port: 8082
+scheduler:
+  cron: ${CRON_JOB:0 * * * * *}
